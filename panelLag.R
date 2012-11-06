@@ -1,14 +1,15 @@
 panelLag <- function(x, id, t, lag=1, data=NULL) {
-  # Returns a version of x lagged within panels given by id.
-  
+  ## Returns a version of x lagged within panels given by id.
+  # Input validation
+  if (!class(t)=='Date') stop('t must be of class "Date"')
+  # Construct data if not given
   if (is.null(data)==T) data <- data.frame(x=x, id=id, t=t)
   
   k <- lag
-  rm(lag)
-  lag <- function(x, k) { c(rep(NA, k), x[k:(length(x)-k)]) }
+  lagger <- function(x, k) { c(rep(NA, k), x[k:(length(x)-k)]) }
   
   data <- data[order(data[, id], data[, t]), ]
-  result <- unlist(by(data[, x], data[, id], lag, k=k))
+  result <- unlist(by(data[, x], data[, id], lagger, k=k))
   return(result)
 }
 
