@@ -10,10 +10,8 @@ worldMap <- function(x, id, data, date='2008-01-01', legend.title=NULL) {
   # state slice in "date", output thematic map.
   
   require(cshapes)
-  require(classInt)
-  require(RColorBrewer)
+  require(RColorBrewer) # for color palettes
   require(plyr)
-  require(shape) # for color legend
   
   # Validate input
   if (all(c(x, id) %in% colnames(data))==F) { stop('x or id not in data') }
@@ -38,6 +36,13 @@ worldMap <- function(x, id, data, date='2008-01-01', legend.title=NULL) {
     # Plot map
     plot(world, col='gray30', border='gray30', lwd=1)
     plot(world, col=colors, border=F, add=T)
+    
+#     # Legend
+#     text(70, 90, paste("Instances of ", modelname, ": ", monthname, " ", year, sep = ""))
+#     rect(xleft = -170, xright = -165, ybottom = c(-57, -50, -43), ytop = c(-52, -45, -38), border = NA, col = c('#B0B0B0', colorpal))
+#     text(-163, c(-57, -50, -43)+0.5, c('No data', paste("No", modelname), modelname), adj = c(0, 0), cex = 0.8)
+#     text(-170, -36, "Key:", cex = 0.8, adj = c(0, 0))
+#     rect(xleft=-171.5, xright=-130, ytop=-31, ybottom=-59)
   }
   
   # 3 to 9 unique values
@@ -52,6 +57,8 @@ worldMap <- function(x, id, data, date='2008-01-01', legend.title=NULL) {
   
   # Continuous
   if (nval > 9) {
+    require(shape) # for color legend
+    
     colorpal <- brewer.pal(9, 'Reds')
     colorpal <- colorRampPalette(colorpal)
     maxy <- 100
@@ -65,9 +72,6 @@ worldMap <- function(x, id, data, date='2008-01-01', legend.title=NULL) {
                 col=colorpal(maxy), zlim=c(0, maxy), zval=breaks,
                 main=legend.title, main.cex=1, cex=1)
   }
-  #   ncol <- length(unique(world@data[, x]))
-  #   colorpal <- brewer.pal(ncol, 'Reds')
-  #   colors <- colorpal[world@data[, x]]
   
   # Legends?
   # What about continuous that spans zero?
