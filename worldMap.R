@@ -10,6 +10,7 @@ worldMap <- function(x, id, data, date='2008-01-01', legend.title=NULL) {
   # state slice in "date", output thematic map.
   
   require(cshapes)
+  require(maptools)
   require(RColorBrewer) # for color palettes
   require(plyr)
   
@@ -19,8 +20,6 @@ worldMap <- function(x, id, data, date='2008-01-01', legend.title=NULL) {
   
   # Load map data
   world <- cshp(date=as.Date(date))
-  world.outline <- cshp(date=as.Date(date))
-  world.outline <- unionSpatialPolygons(world.outline, world.outline@data$COWEYEAR)
   
   # Merge data into spatial object
   world@data <- data.frame(world@data, data[match(world@data[, 'COWCODE'], data[, id]), ])
@@ -47,30 +46,36 @@ worldMap <- function(x, id, data, date='2008-01-01', legend.title=NULL) {
   
   # 3 to 9 unique values
   if (nval >= 3 & nval <= 9) {
-    colorpal <- brewer.pal(nval, 'Reds')
-    colors <- ifelse(is.na(world@data[, x])==T, '#B0B0B0', colorpal[(world@data[, x]+1)])
+    colorpal <- rev(brewer.pal(nval, 'Reds'))
+    colors <- ifelse(is.na(world@data[, x])==T, '#B0B0B0', colorpal[match(world@data[, x], sort(unique(world@data[, x]), decreasing=T))])
     
     # Plot map
-    plot(world, col='grey', border='grey', lwd=1)
+    plot(world, col='gray30', border='gray30', lwd=1)
     plot(world, col=colors, border=F, add=T)
+    
+    # Legend
+    legend.text <- c('No data', rev(unlist(dimnames(table(world@data[, x])))))
+    legend(x=-170, y=15, legend=legend.text, fill=c('#B0B0B0', colorpal), 
+           bty='n', ...)
   }
   
   # Continuous
   if (nval > 9) {
     require(shape) # for color legend
     
+    if (is.null(maxy)) maxy <- max(na.omit(world@data[, x]))
     colorpal <- brewer.pal(9, 'Reds')
     colorpal <- colorRampPalette(colorpal)
-    maxy <- 100
-    breaks <- c(0, 10, 20, 50, 75, 100)
+    
+    breaks <- c(0, round(maxy*1/4), round(maxy/2), round(maxy*3/4), maxy)
     colors <- ifelse(is.na(world@data[, x])==T, '#B0B0B0', colorpal(maxy)[floor(world@data[, x]) + 1] )
     
     # Plot map
-    plot(world, col=colors, border='white', lwd=0.3)
-    plot(world.outline, border='gray50', add=T, lwd=0.8)
-    colorlegend(posy=c(0.1, 0.5), posx=c(0.1, 0.12),
-                col=colorpal(maxy), zlim=c(0, maxy), zval=breaks,
-                main=legend.title, main.cex=1, cex=1)
+    plot(world, col='gray30', border='gray30', lwd=1)
+    plot(world, col=colors, border=F, add=T)
+    colorlegend(posy=c(0.1, 0.45), posx=c(0.12, 0.14),
+                col=colorpal(100), zlim=c(0, maxy), zval=breaks,
+                main=legend.title, main.cex=1.2, cex=1.2)
   }
   
   # Legends?
