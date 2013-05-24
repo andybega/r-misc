@@ -1,10 +1,14 @@
+# to add
+# grayscale option
+# heatmap shading for %missing
+
 plotMissing <- function(data, dim1=NULL, dim2=NULL, na.id=NULL) {
   require(ggplot2)
   require(grid)
   # Function to plot missing values in a data frame, or to plot missing values
   # in a data frame representing panel data (i.e. against 2 dimensions)
   # Leave dim1 and dim2 NULL to plot missing values in data frame.
-  if (xor(is.null(dim1), is.null(dim2))) stop("Specify either both of no dims.")
+  if (xor(is.null(dim1), is.null(dim2))) stop("Specify either both or no dims.")
   
   # Set colors for possible data values
   myCol <- c("#DCDCDC", "#32CD32", "#CD4F39")
@@ -17,13 +21,15 @@ plotMissing <- function(data, dim1=NULL, dim2=NULL, na.id=NULL) {
     df <- data.frame(melt(df))
     df$value <- ifelse(df$value==FALSE, "Complete", "Missing")
     df$value <- as.factor(df$value)
-    
-    p <- ggplot(df, aes_string(x="Var2", y="Var1"))
+    colnames(df) <- c("rows", "columns", "value")
+
+    p <- ggplot(df, aes_string(x="columns", y="rows"))
     p <- p + geom_tile(aes(fill=value)) +
-      scale_fill_manual("Data", values=myCol) +
+      scale_fill_manual("Value", values=myCol) +
       theme(legend.key.size=unit(2, "cm"), legend.text=element_text(size=30),
-            legend.title=element_text(size=30))
-    p
+            legend.title=element_text(size=30)) +
+      scale_y_reverse()
+    return(p)
   }
   
   # Function to plot missing data against 2 dimensions, e.g. country/year
@@ -54,8 +60,8 @@ plotMissing <- function(data, dim1=NULL, dim2=NULL, na.id=NULL) {
     p <- p + geom_tile(aes(fill=pixel)) +
       scale_fill_manual("Data", values=myCol) +
       theme(legend.key.size=unit(2, "cm"), legend.text=element_text(size=30),
-            legend.title=element_text(size=30))
-    p
+            legend.title=element_text(size=30)) 
+    return(p)
   }  
 }
 
@@ -64,4 +70,5 @@ tdata <- data.frame(ccode=c(1,1,1,2,2,2,2), year=c(rep(seq(2000, 2002), 2), 2003
                     value=c(1,1,NA,1,NA,1,1))
 tdata$missing <- !complete.cases(tdata)
 tdata
-plot.missing(tdata, "ccode", "year", "missing")
+plotMissing(tdata, "ccode", "year", "missing")
+plotMissing(tdata)
