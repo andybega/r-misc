@@ -19,8 +19,8 @@ panelDiff <- function(x, id, t, lag=1, differences=1, data=NULL) {
 }
 
 # # Test code
-# vector <- c(0, 0, 1, 1, 5, 1, 1, 5, 3, 3)
-# country <- c(rep('a', 5), rep('b', 5))
-# time <- rep(as.Date(c('2012-01-01', '2012-02-01', '2012-03-01', '2012-04-01', '2012-05-01')),2)
-# data <- data.frame(vector, country, time)
-# panelDiff('vector', 'country', 'time', data=data, differences=2)
+vector <- c(0, 0, 1, 1, 5, 1, 1, 5, 3, 3)
+country <- c(rep('a', 5), rep('b', 5))
+time <- rep(as.Date(c('2012-01-01', '2012-02-01', '2012-03-01', '2012-04-01', '2012-05-01')),2)
+data <- data.frame(vector, country, time)
+panelDiff('vector', 'country', 'time', data=data, differences=1)
