@@ -5,7 +5,8 @@
 #
 ###########
 
-worldMap <- function(x, id, data, date='2008-01-01', legend.title=NULL) {
+worldMap <- function(x, id, data, date='2008-01-01', legend.title=NULL,
+                     maxy=1) {
   # Input 2-column matrix with unique identifier and data to be mapped for 
   # state slice in "date", output thematic map.
   
@@ -63,12 +64,21 @@ worldMap <- function(x, id, data, date='2008-01-01', legend.title=NULL) {
   if (nval > 9) {
     require(shape) # for color legend
     
-    if (is.null(maxy)) maxy <- max(na.omit(world@data[, x]))
-    colorpal <- brewer.pal(9, 'Reds')
+    if (is.null(maxy)) maxy <- max(world@data[, x], na.rm=T)
+    colorpal <- brewer.pal(9, 'Reds')  
+    colorpal <- colorpal[1:6]  # adjust this to avoid too dark reds
     colorpal <- colorRampPalette(colorpal)
     
-    breaks <- c(0, round(maxy*1/4), round(maxy/2), round(maxy*3/4), maxy)
-    colors <- ifelse(is.na(world@data[, x])==T, '#B0B0B0', colorpal(maxy)[floor(world@data[, x]) + 1] )
+    # adjust breaks for 0-1 and other
+    if (diff(c(min(world@data[, x], na.rm=T), maxy)) <= 1) {
+      breaks <- c(0, 1)
+      colors <- colorpal(maxy*100)[floor(world@data[, x]*100) + 1]
+      colors <- ifelse(is.na(world@data[, x])==T, '#B0B0B0', colors )
+    } else {
+      breaks <- c(0, round(maxy*1/4), round(maxy/2), round(maxy*3/4), maxy)
+      colors <- colorpal(maxy)[floor(world@data[, x]) + 1]
+      colors <- ifelse(is.na(world@data[, x])==T, '#B0B0B0', colors )
+    }
     
     # Plot map
     plot(world, col='gray30', border='gray30', lwd=1)
