@@ -49,7 +49,7 @@ attemptDate <- function(date, by) {
   	}
   }
   if (!class(date)=="Date") {
-  	stop(paste("Count not convert to class 'Date'"))
+  	stop(paste("Could not convert to class 'Date'"))
   }
   return(date)
 }
