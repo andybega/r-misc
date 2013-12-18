@@ -34,23 +34,32 @@ y
 table(y==1)
 
 
+##    MLE model
 
-mle.model <- glm(y ~ X[, 2:3], family=binomial(link="probit"))
-summary(mle.model)
+data <- data.frame(cbind(y, X))
+data$l1.y <- c(0, y[1:999])
+mle.y0 <- glm(y ~ x1 + x2, data=data[l1.y==0, ], family=binomial(link="probit"))
+mle.y1 <- glm(y ~ x1 + x2, data=data[l1.y==1, ], family=binomial(link="probit"))
+summary(mle.y0)
+summary(mle.y1)
 
 
 ##    JAGS model
 
 modelstring <-
-  "model {
-for (i in 1:N){
-y[i] ~ dbern(p[i])
-probit(p[i]) <- b[1] + b[2]*x1[i] + b[3]*x2[i]      
-}
-## Priors
-for (i in 1:3) {
-b[i] ~ dnorm(0, 0.01)
-}
+"model {
+  # For first observation
+    y[1] ~ dbern(p[1])
+    probit(p[1]) <- b[1] + b[2]*x1[1] + b[3]*x2[1]
+  for (i in 2:N){
+    y[i] ~ dbern(p[i])
+    probit(p[i]) <- (1 - y[i-1]) * (b[1] + b[2]*x1[i] + b[3]*x2[i])
+                       + y[i-1]  * (b[4] + b[5]*x1[i] + b[6]*x2[i])
+  }
+  ## Priors
+  for (i in 1:6) {
+    b[i] ~ dnorm(0, 0.01)
+  }
 }"
 writeLines(modelstring, con="~/Desktop/jags-model.txt")
 
