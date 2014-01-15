@@ -11,23 +11,33 @@
 
 statePanel <- function(start.date, end.date, by="month", useGW=TRUE) {
   require(cshapes)
-  start.date <- attemptDate(start.date, by)
-  end.date <- attemptDate(end.date, by)
+  panel.start <- attemptDate(start.date, by)
+  panel.end <- attemptDate(end.date, by)
+  
   # Create vector of desired dates
-  date <- seq.Date(start.date, end.date, by=by)
+  date <- seq.Date(panel.start, panel.end, by=by)
+  
   # Initialize results panel
   panel <- data.frame(NULL)
+  
+  # Get full data and subset by date; fill in results
+  cshp.full <- cshp()@data
   for (i in seq_along(date)) {
     if (useGW) {
-      date.slice <- cshp(date=date[i], useGW=TRUE)$GWCODE
+      ctry.start <- as.Date(paste(cshp.full$GWSYEAR, cshp.full$GWSMONTH, cshp.full$GWSDAY, sep = "-"))
+      ctry.end   <- as.Date(paste(cshp.full$GWEYEAR, cshp.full$GWEMONTH, cshp.full$GWEDAY, sep = "-"))
+      date.slice <- cshp.full[ctry.start <= date & ctry.end >= date, "GWCODE"]
     } else if (!useGW) {
-      date.slice <- cshp(date=date[i], useGW=FALSE)$COWCODE
+      ctry.start <- as.Date(paste(cshp.full$COWSYEAR, cshp.full$COWSMONTH, cshp.full$COWSDAY, sep = "-"))
+      ctry.end   <- as.Date(paste(cshp.full$COWEYEAR, cshp.full$COWEMONTH, cshp.full$COWEDAY, sep = "-"))	
+      date.slice <- cshp.full[ctry.start <= date & ctry.end >= date, "COWCODE"]
     }
     # Append to results panel
     panel <- rbind(panel, data.frame(ccode=date.slice, date=date[i]))
   }
   # Create unique ID
   panel$id <- paste(panel$date, panel$ccode)
+  panel <- panel[order(panel$ccode, panel$date), ]
   return(panel)
 }
 
