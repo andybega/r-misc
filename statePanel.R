@@ -29,7 +29,7 @@ statePanel <- function(start.date, end.date, by="month", useGW=TRUE) {
       ctry.start <- as.Date(paste(cshp.full$GWSYEAR, cshp.full$GWSMONTH, cshp.full$GWSDAY, sep = "-"))
       ctry.end   <- as.Date(paste(cshp.full$GWEYEAR, cshp.full$GWEMONTH, cshp.full$GWEDAY, sep = "-"))
       if (date[i] <= max.cshp.date) {
-      	date.slice <- cshp.full[ctry.start <= date & ctry.end >= date, "GWCODE"]
+      	date.slice <- cshp.full[ctry.start <= date[i] & ctry.end >= date[i], "GWCODE"]
       } else {
       	date.slice <- cshp.full[ctry.start <= max.cshp.date & ctry.end >= max.cshp.date, "GWCODE"]
       	warning(paste0("Exceeding cshapes max date, using ", max.cshp.date, " instead of ", date[i]))
@@ -38,7 +38,7 @@ statePanel <- function(start.date, end.date, by="month", useGW=TRUE) {
       ctry.start <- as.Date(paste(cshp.full$COWSYEAR, cshp.full$COWSMONTH, cshp.full$COWSDAY, sep = "-"))
       ctry.end   <- as.Date(paste(cshp.full$COWEYEAR, cshp.full$COWEMONTH, cshp.full$COWEDAY, sep = "-"))
       if (date[i] <= max.cshp.date) {	
-        date.slice <- cshp.full[ctry.start <= date & ctry.end >= date, "COWCODE"]
+        date.slice <- cshp.full[ctry.start <= date[i] & ctry.end >= date[i], "COWCODE"]
       } else {
       	date.slice <- cshp.full[ctry.start <= max.cshp.date & ctry.end >= max.cshp.date, "COWCODE"]
       	warning(paste0("Exceeding cshapes max date, using ", max.cshp.date, " instead of ", date[i]))
