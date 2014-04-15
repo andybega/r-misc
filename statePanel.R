@@ -58,6 +58,7 @@ statePanel <- function(start.date, end.date, by="month", useGW=TRUE) {
   # Create unique ID
   panel$id <- paste(panel$date, panel$ccode)
   panel <- panel[order(panel$ccode, panel$date), ]
+  close(pb)
   return(panel)
 }
 
