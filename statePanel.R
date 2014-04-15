@@ -24,6 +24,9 @@ statePanel <- function(start.date, end.date, by="month", useGW=TRUE) {
   cshp.full <- cshp()@data
   max.cshp.date <- max(as.Date(paste(cshp.full$GWEYEAR, cshp.full$GWEMONTH, cshp.full$GWEDAY, sep = "-")), na.rm=T)
   
+  # Progress bar
+  pb <- txtProgressBar(1, length(date), initial=1, style=3, width=60)
+  
   for (i in seq_along(date)) {
     if (useGW) {
       ctry.start <- as.Date(paste(cshp.full$GWSYEAR, cshp.full$GWSMONTH, cshp.full$GWSDAY, sep = "-"))
@@ -48,6 +51,9 @@ statePanel <- function(start.date, end.date, by="month", useGW=TRUE) {
     }
     # Append to results panel
     panel <- rbind(panel, data.frame(ccode=date.slice, date=date[i]))
+    
+    # Update progress bar
+    setTxtProgressBar(pb, i)
   }
   # Create unique ID
   panel$id <- paste(panel$date, panel$ccode)
