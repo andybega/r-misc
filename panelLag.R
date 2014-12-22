@@ -30,8 +30,59 @@ panelLag <- function(x, id, t, lag=1, data=NULL) {
   return(result)
 }
 
+#' Lag variables
+#' 
+#' Lag a single variable in panel data frame.
+#' 
+#' @param df Data frame containing panel data.
+#' @param x Name of variable to lag.
+#' @param id Variable that identifies cross-sectional units (subjects,
+#'   countries).
+#' @param t Variable that identifies time points.
+#' @param n Time periods to lag by.
+#'   
+#' @return A vector of same length and order as \code{x}, lagged by \code{n}
+#'   time periods
+#'   
+#'   
+#' @examples
+#' ex <- data.frame(
+#'   x1=c(1,2,3,4,5,6,7,8,9,0), 
+#'   id1=c(1,1,1,1,1,2,2,2,2,2), 
+#'   t1=c(1,2,3,4,5,1,2,3,4,5))
+#'   
+#' lag_panel(ex, x1, id1, t1)
+#'   
+#' # scramble
+#' ex <- ex[sample(nrow(ex)), ]
+#' lag_panel(ex, x1, id1, t1)
+#' 
+#' @export
+#' @import dplyr
+#' @import lazyeval
+lag_panel <- function(df, x, id, t, n=1L) {
+  # imports lazyeval, dplyr
+  df <- as.tbl(df)
+  df$org_order <- 1:nrow(df)
+  
+  # arguments for mutate
+  dots <- list(interp(~lag(x, n=n), x=lazy(x), n=n))
+  
+  df <- df %>%
+    group_by_(lazy(id)) %>%
+    arrange_(lazy(t)) %>%
+    mutate_(
+      .dots = setNames(dots, c("x_lagged"))
+    ) %>%
+    arrange(org_order) %>% # use NSE since `org_order` defined in local env.
+    as.data.frame()
+  
+  return(df$x_lagged)
+}
+
+
 ## Test code
-# test.data <- data.frame(x1=c(1,2,3,4,5,6,7,8,9,0), id1=c(1,1,1,1,1,2,2,2,2,2), t1=c(1,2,3,4,5,1,2,3,4,5))
+
 # # Result with no warning.
 # panelLag('x1', 'id1', 't1', lag=1, data=test.data)
 # # Result with warning about lag.

@@ -93,3 +93,17 @@ worldMap <- function(x, id, data, date='2008-01-01', legend.title=NULL,
   # how to pick breaks in cont. colorlegend
   # transforming continuous data for plotting
 }
+
+
+#' Convert bounding box to points for plotting
+#' 
+#' Returns data frame with x and y coordinates
+#' 
+#' @import sp
+bbox_to_points <- function(bbox) {
+  pts <- data.frame(
+    x=c(bbox[1, 1], rep(bbox[1, 2], 2), bbox[1, 1]),
+    y=c(rep(bbox[2, 1], 2), rep(bbox[2, 2], 2)) )
+  coordinates(pts) <- ~x+y
+  pts
+}

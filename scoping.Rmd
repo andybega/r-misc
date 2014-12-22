@@ -1,0 +1,17 @@
+---
+title: "Scoping and promises"
+author: "Andreas Beger"
+date: "November 24, 2014"
+output: html_document
+---
+
+What do these functions do?: `deparse`, `substitute`, `quote`, `eval`, `get`.
+
+`bquote`, `sQuote`, `dQuote`. 
+
+
+foo <- function(x) {
+  res <- list(NULL)
+  res$x <- x
+  return(res)
+}

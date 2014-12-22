@@ -33,10 +33,10 @@ statePanel <- function(start.date, end.date, by="month", useGW=TRUE) {
       ctry.end   <- as.Date(paste(cshp.full$GWEYEAR, cshp.full$GWEMONTH, cshp.full$GWEDAY, sep = "-"))
       if (date[i] <= max.cshp.date) {
       	date.slice <- cshp.full[ctry.start <= date[i] & ctry.end >= date[i], "GWCODE"]
-        date.slice <- date.slice[!is.na(date.slice$GWCODE), ]  # fix for NA dates in GW
+        date.slice <- date.slice[!is.na(date.slice)]  # fix for NA dates in GW
       } else {
       	date.slice <- cshp.full[ctry.start <= max.cshp.date & ctry.end >= max.cshp.date, "GWCODE"]
-      	date.slice <- date.slice[!is.na(date.slice$GWCODE), ]  # fix for NA dates in GW
+      	date.slice <- date.slice[!is.na(date.slice)]  # fix for NA dates in GW
       	warning(paste0("Exceeding cshapes max date, using ", max.cshp.date, " instead of ", date[i]))
       }
     } else if (!useGW) {
