@@ -61,20 +61,24 @@ panelLag <- function(x, id, t, lag=1, data=NULL) {
 #' @import dplyr
 #' @import lazyeval
 lag_panel <- function(df, x, id, t, n=1L) {
-  # imports lazyeval, dplyr
+  lag_panel_(df, substitute(x), substitute(id), substitute(t), n)
+}
+
+lag_panel_ <- function(df, x, id, t, n=1L) {
   df <- as.tbl(df)
   df$org_order <- 1:nrow(df)
   
   # arguments for mutate
-  dots <- list(interp(~lag(x, n=n), x=lazy(x), n=n))
-  
+  mutate_call <- lazyeval::interp(~ lag(x, n = n), x = as.name(x), n = n)
+
   df <- df %>%
-    group_by_(lazy(id)) %>%
-    arrange_(lazy(t)) %>%
+    group_by_(id) %>%
+    arrange_(t) %>%
     mutate_(
-      .dots = setNames(dots, c("x_lagged"))
+      .dots = setNames(list(mutate_call), c("x_lagged"))
     ) %>%
-    arrange(org_order) %>% # use NSE since `org_order` defined in local env.
+    ungroup() %>%
+    arrange(org_order) %>%
     as.data.frame()
   
   return(df$x_lagged)
@@ -82,6 +86,22 @@ lag_panel <- function(df, x, id, t, n=1L) {
 
 
 ## Test code
+test_lag_panel <- function() {
+  ex <- data.frame(
+    x1=c(1,2,3,4,5,6,7,8,9,0), 
+    id1=c(1,1,1,1,1,2,2,2,2,2), 
+    t1=c(1,2,3,4,5,1,2,3,4,5))
+  
+  identical(lag_panel_(ex, "x1", "id1", "t1"), c(NA, 1, 2, 3, 4, NA, 6, 7, 8, 9))
+  a <- "x1"
+  b <- "id1"
+  c <- "t1"
+  d <- 1
+  identical(lag_panel_(ex, a, b, c, d), c(NA, 1, 2, 3, 4, NA, 6, 7, 8, 9))
+  
+  identical(lag_panel(ex, x1, id1, t1), c(NA, 1, 2, 3, 4, NA, 6, 7, 8, 9))
+}
+
 
 # # Result with no warning.
 # panelLag('x1', 'id1', 't1', lag=1, data=test.data)

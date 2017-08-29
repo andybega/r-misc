@@ -98,3 +98,21 @@ rocdf <- function(pred, obs, data=NULL, type=NULL) {
 # To plot, something like:
 #xy <- rocdf(pred, obs, type="pr")
 #plot(xy[, 1], xy[, 2])
+
+# Fit summary function for caret that works with binary predictions
+binClassSummary <- function(data, lev = NULL, model = NULL) {
+  
+  if (!"event" %in% names(data))
+    stop("Are 1's called 'event' in the factor? or, in trainControl, set classProbs = TRUE")
+
+  obs  <- as.numeric(data$obs=="event")
+  pred <- data[, "event"]
+  
+  out <- c(brier = brier(obs, pred),
+           auc_roc = tryCatch(auc_roc(obs, pred), error = function(e) NA),
+           auc_pr  = tryCatch(auc_pr(obs, pred), error = function(e) NA)
+  )
+  
+  names(out) <- c("Brier", "AUC_ROC", "AUC_PR")
+  out
+}

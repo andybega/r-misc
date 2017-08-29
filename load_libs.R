@@ -8,11 +8,11 @@
 load_libs <- function(to_load) {
   for(lib in to_load){
     if (!lib %in% installed.packages()[, 1]) {
-      message("\nInstalling ", lib)
-      install.packages(pkgs = lib, repos="https://cran.rstudio.com", 
+      message("Installing ", lib)
+      install.packages(pkgs = lib, repos="http://cran.rstudio.com", 
                        dependencies = TRUE)
     }
-    message("\nLoading ", lib)
+    message("Loading ", lib)
     library(lib, character.only = TRUE)
   }
   invisible(NULL)
