@@ -1,0 +1,30 @@
+---
+title: "Identify year sequences"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+df <- data.frame(year = c(1990:1995, 2000:2005), 
+                 seq_id = c(rep(1, 6), rep(2, 6)))
+
+df <- data.frame(year = c(1990:1995, 2000:2003),
+                 seq_id = c(rep(1, 6), rep(2, 4)))
+
+df <- data.frame(year = c(1990:1995, 2000, 2003:2005),
+                 seq_id = c(rep(1, 6), 2, rep(3, 3)))
+
+code_year_sequences <- function(x) {
+  seq_vec <- vector("integer", length = length(x))
+  seq_vec[1] <- 1
+  for (i in 2:length(x)) {
+    seq_vec[i] <- ifelse(x[i] - x[i-1]==1, seq_vec[i-1], seq_vec[i-1] + 1)
+  }
+  seq_vec
+}
+
+
+
+```
+
