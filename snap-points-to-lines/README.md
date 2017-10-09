@@ -1,6 +1,21 @@
 Snap points to lines/polygons
 ================
 
+-   [To source](#to-source)
+-   [Notes](#notes)
+    -   [Snap all point to a line](#snap-all-point-to-a-line)
+    -   [Snap only those points outside the polygon](#snap-only-those-points-outside-the-polygon)
+
+To source
+---------
+
+``` r
+devtools::source_url("https://raw.githubusercontent.com/andybega/r-misc/master/snap-points-to-lines/snap-points.R")
+```
+
+Notes
+-----
+
 ``` r
 library("maptools")
 library("raster")
@@ -26,12 +41,6 @@ eesti <- eesti_sp %>%
     ## needs to be in decimal degrees
 
 ``` r
-plot(eesti[, 1], col = 0, main = "Estonia")
-```
-
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-2-1.png)
-
-``` r
 pts <- eesti %>% 
   # hack to turn bbox into polygon we can sample
   st_geometry() %>% st_make_grid() %>% st_union() %>% 
@@ -41,17 +50,21 @@ pts <- eesti %>%
     ## although coordinates are longitude/latitude, it is assumed that they are planar
 
 ``` r
-plot(eesti[, 1], col = 0, main = "Snap all points to border/shore")
+plot(eesti[, 1], col = 0, main = "Estonia with example points")
 plot(pts, add = T, col = "red")
+```
 
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-3-1.png)
+
+### Snap all point to a line
+
+``` r
 target <- eesti %>% st_geometry() %>% st_boundary() %>% 
   # need to convert MULTILINESTRING to LINESTRING otherwise only the first line
   # will be matched against
   st_cast(., "LINESTRING") 
 
 new_pts <- snap_points_to_line(pts, target, epsg = 3301)
-plot(new_pts, add = T, col = "blue")
-
 
 coords1 <- st_coordinates(pts)
 coords2 <- st_coordinates(new_pts)
@@ -61,10 +74,16 @@ connectors <- lapply(1:length(pts), function(i) {
   x <- st_linestring(x)
 })
 connectors <- st_sfc(connectors, crs = epsg)
+
+plot(eesti[, 1], col = 0, main = "Snap all points to border/shore")
+plot(pts, add = T, col = "red")
+plot(new_pts, add = T, col = "blue")
 plot(connectors, add = T)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-2-2.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-1.png)
+
+### Snap only those points outside the polygon
 
 ``` r
 new_pts <- snap_points_to_polygon(pts, st_geometry(eesti), epsg = 3301)
@@ -84,7 +103,7 @@ plot(new_pts, add = T, col = "blue")
 plot(connectors, add = T)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-3-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
 
 It is possible that this would still leave some points outside the polygon if you check with `st_intersects`. I'm not sure why this is but I would guess precision issues and doing this with lat/long data might be involved. An easy way around this problem is to snap points not to the border/shore, but slightly inside the country using a buffer.
 
@@ -108,7 +127,7 @@ eesti_buffer %>%
   plot(., col = "blue", lty = 2, add = T)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)
 
 ``` r
 new_pts <- snap_points_to_polygon(pts, st_geometry(eesti), epsg = 3301,
@@ -129,4 +148,4 @@ plot(new_pts, add = T, col = "blue")
 plot(connectors, add = T)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-2.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-2.png)

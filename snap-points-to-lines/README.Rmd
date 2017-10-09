@@ -1,8 +1,17 @@
 ---
 title: "Snap points to lines/polygons"
 output: 
-  github_document
+  github_document:
+    toc: yes
 ---
+
+## To source
+
+```{r, eval = FALSE}
+devtools::source_url("https://raw.githubusercontent.com/andybega/r-misc/master/snap-points-to-lines/snap-points.R")
+```
+
+## Notes
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -27,23 +36,23 @@ eesti <- eesti_sp %>%
   st_as_sf() %>%
   st_simplify(dTolerance = 0.001)
 
-plot(eesti[, 1], col = 0, main = "Estonia")
-
 pts <- eesti %>% 
   # hack to turn bbox into polygon we can sample
   st_geometry() %>% st_make_grid() %>% st_union() %>% 
   st_sample(size = 20) 
-plot(eesti[, 1], col = 0, main = "Snap all points to border/shore")
+plot(eesti[, 1], col = 0, main = "Estonia with example points")
 plot(pts, add = T, col = "red")
+```
 
+### Snap all points to a line
+
+```{r}
 target <- eesti %>% st_geometry() %>% st_boundary() %>% 
   # need to convert MULTILINESTRING to LINESTRING otherwise only the first line
   # will be matched against
   st_cast(., "LINESTRING") 
 
 new_pts <- snap_points_to_line(pts, target, epsg = 3301)
-plot(new_pts, add = T, col = "blue")
-
 
 coords1 <- st_coordinates(pts)
 coords2 <- st_coordinates(new_pts)
@@ -53,9 +62,15 @@ connectors <- lapply(1:length(pts), function(i) {
   x <- st_linestring(x)
 })
 connectors <- st_sfc(connectors, crs = epsg)
+
+plot(eesti[, 1], col = 0, main = "Snap all points to border/shore")
+plot(pts, add = T, col = "red")
+plot(new_pts, add = T, col = "blue")
 plot(connectors, add = T)
 
 ```
+
+### Snap only those points outside the polygon
 
 ```{r}
 
