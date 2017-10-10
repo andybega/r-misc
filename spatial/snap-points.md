@@ -3,7 +3,7 @@ Snap points to lines/polygons
 
 -   [To source](#to-source)
 -   [Notes](#notes)
-    -   [Snap all point to a line](#snap-all-point-to-a-line)
+    -   [Snap all points to a line](#snap-all-points-to-a-line)
     -   [Snap only those points outside the polygon](#snap-only-those-points-outside-the-polygon)
 
 To source
@@ -54,9 +54,9 @@ plot(eesti[, 1], col = 0, main = "Estonia with example points")
 plot(pts, add = T, col = "red")
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-3-1.png)
+![](snap-points_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-3-1.png)
 
-### Snap all point to a line
+### Snap all points to a line
 
 ``` r
 target <- eesti %>% st_geometry() %>% st_boundary() %>% 
@@ -81,7 +81,7 @@ plot(new_pts, add = T, col = "blue")
 plot(connectors, add = T)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-1.png)
+![](snap-points_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-1.png)
 
 ### Snap only those points outside the polygon
 
@@ -103,7 +103,7 @@ plot(new_pts, add = T, col = "blue")
 plot(connectors, add = T)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
+![](snap-points_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
 
 It is possible that this would still leave some points outside the polygon if you check with `st_intersects`. I'm not sure why this is but I would guess precision issues and doing this with lat/long data might be involved. An easy way around this problem is to snap points not to the border/shore, but slightly inside the country using a buffer.
 
@@ -127,7 +127,7 @@ eesti_buffer %>%
   plot(., col = "blue", lty = 2, add = T)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)
+![](snap-points_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)
 
 ``` r
 new_pts <- snap_points_to_polygon(pts, st_geometry(eesti), epsg = 3301,
@@ -148,4 +148,4 @@ plot(new_pts, add = T, col = "blue")
 plot(connectors, add = T)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-2.png)
+![](snap-points_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-2.png)

@@ -1,0 +1,11 @@
+---
+title: "Marked points to polygons"
+output: github_document
+---
+
+Convert points marked with a categorical variable to a polygons for each category.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+

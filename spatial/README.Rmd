@@ -1,0 +1,14 @@
+---
+title: "Miscellaneous spatial stuff"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+[Snap points to lines or polygons](snap-points.md)
+
+![](images/unnamed-chunk-4-1.png)
+
+[Convert marked points to polygons](marked-points-to-polygons.Rmd)
