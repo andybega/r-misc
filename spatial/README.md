@@ -8,3 +8,7 @@ Miscellaneous spatial stuff
 [Convert marked points to polygons](marked-points-to-polygons.md)
 
 ![](images/ee-points-to-polygons-1.png)
+
+[Frontline-like data and deriving features](frontlines.md)
+
+![](images/latvia-frontlines.png)
