@@ -1,5 +1,5 @@
 ---
-title: "Border lengths and dynamic features"
+title: "Frontlines and deriving features"
 output: 
   github_document:
     toc: yes
@@ -237,7 +237,7 @@ dyadic  <- borders(scen2$areas, "mark", monadic = FALSE)
 dyadic
 ```
 
-## Make the data more complicated
+### Make the data more complicated
 
 ```{r}
 scen3 <- scenario(country, 20, 4, 1236)

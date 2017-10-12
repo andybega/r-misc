@@ -1,10 +1,10 @@
-Border lengths and dynamic features
+Frontlines and deriving features
 ================
 
 -   [Setup the scenario](#setup-the-scenario)
 -   [Two groups, one polygon each, monadic](#two-groups-one-polygon-each-monadic)
 -   [Multiple groups, multiple polygons (MULTIPOLYGON)](#multiple-groups-multiple-polygons-multipolygon)
--   [Make the data more complicated](#make-the-data-more-complicated)
+    -   [Make the data more complicated](#make-the-data-more-complicated)
 
 Setup: a war-like situation. We have data who controls a certain location (point) at a given time. This corresponds to marked spatio-temporal points, or slices of marked points in which the marks can change between slices. Locations that are under dispute can be marked with values for two groups.
 
@@ -362,8 +362,7 @@ dyadic
     ## 2.1    b      4      c        1 MULTILINESTRING ((567934.14...
     ## 3      c      1      b        4 MULTILINESTRING ((418384.21...
 
-Make the data more complicated
-------------------------------
+### Make the data more complicated
 
 ``` r
 scen3 <- scenario(country, 20, 4, 1236)
