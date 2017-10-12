@@ -45,7 +45,7 @@ source("snap-points.R")
 We need a larger polygon (country) within which we'll sample marked points. 
 
 ```{r}
-country_sp <- getData("GADM", country="LVA", level = 0)
+country_sp <- getData("GADM", country="LVA", level = 0, path = "data")
 
 country <- country_sp %>%
   st_as_sf() %>%
@@ -237,7 +237,7 @@ dyadic  <- borders(scen2$areas, "mark", monadic = FALSE)
 dyadic
 ```
 
-## Make it more complicated
+## Make the data more complicated
 
 ```{r}
 scen3 <- scenario(country, 20, 4, 1236)

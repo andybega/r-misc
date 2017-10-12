@@ -26,7 +26,7 @@ source("marked-points-to-polygons.R")
 Generate some example points with marks.
 
 ```{r}
-eesti_sp <- getData("GADM", country="EST", level = 0)
+eesti_sp <- getData("GADM", country="EST", level = 0, path = "data")
 
 eesti <- eesti_sp %>%
   st_as_sf() %>%

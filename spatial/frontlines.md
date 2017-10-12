@@ -4,7 +4,7 @@ Border lengths and dynamic features
 -   [Setup the scenario](#setup-the-scenario)
 -   [Two groups, one polygon each, monadic](#two-groups-one-polygon-each-monadic)
 -   [Multiple groups, multiple polygons (MULTIPOLYGON)](#multiple-groups-multiple-polygons-multipolygon)
--   [Make it more complicated](#make-it-more-complicated)
+-   [Make the data more complicated](#make-the-data-more-complicated)
 
 Setup: a war-like situation. We have data who controls a certain location (point) at a given time. This corresponds to marked spatio-temporal points, or slices of marked points in which the marks can change between slices. Locations that are under dispute can be marked with values for two groups.
 
@@ -43,7 +43,7 @@ source("snap-points.R")
 We need a larger polygon (country) within which we'll sample marked points.
 
 ``` r
-country_sp <- getData("GADM", country="LVA", level = 0)
+country_sp <- getData("GADM", country="LVA", level = 0, path = "data")
 
 country <- country_sp %>%
   st_as_sf() %>%
@@ -362,8 +362,8 @@ dyadic
     ## 2.1    b      4      c        1 MULTILINESTRING ((567934.14...
     ## 3      c      1      b        4 MULTILINESTRING ((418384.21...
 
-Make it more complicated
-------------------------
+Make the data more complicated
+------------------------------
 
 ``` r
 scen3 <- scenario(country, 20, 4, 1236)
