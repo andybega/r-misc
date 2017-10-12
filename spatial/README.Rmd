@@ -9,6 +9,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 [Snap points to lines or polygons](snap-points.md)
 
-![](images/unnamed-chunk-4-1.png)
+![](images/ee-snap-points-to-line.png)
 
-[Convert marked points to polygons](marked-points-to-polygons.Rmd)
+[Convert marked points to polygons](marked-points-to-polygons.md)
+
+![](images/ee-points-to-polygons-1.png)

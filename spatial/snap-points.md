@@ -149,3 +149,11 @@ plot(connectors, add = T)
 ```
 
 ![](snap-points_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-2.png)
+
+What if all points are already on the line?
+
+What if all points are already inside the polygons?
+
+What if input for snap\_points\_to\_line() is class "sf"?
+
+What if input for snap\_points\_to\_polygons() is class "sf"?

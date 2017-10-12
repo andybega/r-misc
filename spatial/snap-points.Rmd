@@ -131,3 +131,10 @@ plot(new_pts, add = T, col = "blue")
 plot(connectors, add = T)
 ```
 
+What if all points are already on the line?
+
+What if all points are already inside the polygons?
+
+What if input for snap_points_to_line() is class "sf"?
+
+What if input for snap_points_to_polygons() is class "sf"?
