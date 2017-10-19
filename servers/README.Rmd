@@ -1,0 +1,96 @@
+---
+title: "Dealing with servers"
+output: 
+  github_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Logging with `futile.logger`
+
+When running scripts that take a while to run, and/or which run on a server somewhere, it is nice to have some measure of progress. Something like this:
+
+```{r, results="hold"}
+t0 <- proc.time()
+Sys.sleep(2)
+cat(sprintf("%s: something happened\n", Sys.time()))
+cat(sprintf("Script finished in %ss\n", round((proc.time() - t0)["elapsed"])))
+```
+
+works but is a bit unwieldy. Need to put newlines ("\n") at each `cat()` and what to do if you suddenly don't want log output. Instead:
+
+```{r, results="hold"}
+library("futile.logger")
+flog.info("Hello")
+flog.error("Something bad happened, but we keep going")
+```
+
+
+## Script notifications via Pushbullet
+
+When is that script running on a server done?
+
+1. Connect to server and check periodically.
+2. Get notifications when the script is done (or errors out).
+
+There seem to be several ways of doing this in R. Pushbullet via [RPushbullet](https://github.com/eddelbuettel/rpushbullet) is one option. It's free, and was easy to setup. 
+
+```{r, eval = FALSE}
+
+library("RPushbullet")
+
+# 1st time setup:
+if (!file.exists("~/.rpushbullet.json") & interactive()) {
+  api_key <- readline(prompt = "Enter Pushbullet API key: ")
+  dev <- pbGetDevices(api_key)
+  jsonlite::toJSON(list(key = api_key,
+                        devices = dev$devices$iden,
+                        names = dev$devices$nickname),
+                   pretty = TRUE, auto_unbox = TRUE) %>%
+    cat(., file = "~/.rpushbullet.json")
+} else if (!file.exists("~/.rpushbullet.json")) {
+  stop("Could not find RPushbullet config file; run interactively to setup")
+}
+
+# To send notifications
+pbPost("note", title = "Server: something happened", body = sprintf("Finished %s", 2))
+
+
+# This will send any errors as notifications as well; not good to have this on
+# during an interactive session while debugging.
+options(error = function() {
+  library("RPushbullet")
+  pbPost("note", "Server: Error", geterrmessage())
+  if(!interactive()) stop(geterrmessage())
+})
+  
+```
+
+## File transfer with S3
+
+Use an Amazon S3 bucket to store and access files. I created an IAM user with access to only a data store single bucket for this, since the credentials for that user might potentially live on a server. 
+
+Andrew Heiss has some code that uses `s3mpi`, which has some core functions for writing and reading R objects with S3 as the go between. It seems that the more general `aws.s3` packages provides the same functionality but with a more exhaustive feature set. 
+
+```{r, eval = FALSE}
+library("aws.s3")
+Sys.setenv("AWS_ACCESS_KEY_ID" = "mykey",
+           "AWS_SECRET_ACCESS_KEY" = "mysecretkey")
+
+# this should work
+bucketlist()
+
+get_bucket("my-bucket")
+```
+
+There are several different ways to read/write from/to S3, but some basic ones:
+
+- `s3save()`/`s3load()` like `save()`/`load()`
+- `s3saveRDS()`/`s3loadRDS()` like `saveRDS()`/`loadRDS()`
+- for CSV/.etc: use `save_object()` and `put_object()` to write and save local files, e.g. to save a CSV to S3 one would: `write_csv()` -> `put_object()`
+    - for smaller files [maybe also](https://github.com/cloudyr/aws.s3/issues/170): `s3read_using(FUN = read.csv, object = "s3://myBucketName/aFolder/fileName.csv")` 
+
+
