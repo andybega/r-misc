@@ -10,5 +10,13 @@ library("devtools")
 source_url("https://raw.githubusercontent.com/andybega/r-misc/master/load_libs.R")
 ```
 
-For quick questions/comments [@andybeega](https://twitter.com/andybeega)
+## Pointers
+
+For creating country-year or similar data of independent states over some time period, see https://github.com/andybega/states.
+
+Notes on running stuff on EC2 or Digital Ocean servers [server/](server/)
+
+## Contact
+
+[@andybeega](https://twitter.com/andybeega)
 
