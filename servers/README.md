@@ -2,15 +2,16 @@ Dealing with servers
 ================
 
 -   [Starting and interacting with server](#starting-and-interacting-with-server)
-    -   [EC2 for Rstudio](#ec2-for-rstudio)
-    -   [EC2 for Docker](#ec2-for-docker)
+    -   [EC2 with Rstudio AMI](#ec2-with-rstudio-ami)
+    -   [EC2 with Docker + RStudio](#ec2-with-docker-rstudio)
     -   [Digital Ocean for Docker](#digital-ocean-for-docker)
-    -   [Setup credentials](#setup-credentials)
+    -   [Setup credentials on server](#setup-credentials-on-server)
 -   [Deploying data/environment to server](#deploying-dataenvironment-to-server)
     -   [Manually](#manually)
+    -   [Dropbox](#dropbox)
     -   [Use Docker](#use-docker)
-        -   [Docker + copy source files and data](#docker-copy-source-files-and-data)
         -   [Docker + copy image](#docker-copy-image)
+        -   [Docker + manually copy source files and data](#docker-manually-copy-source-files-and-data)
 -   [Utilities for interacting with servers](#utilities-for-interacting-with-servers)
     -   [Run scripts in background](#run-scripts-in-background)
     -   [Logging with `futile.logger`](#logging-with-futile.logger)
@@ -24,11 +25,13 @@ EC2 vs Digital Ocean: in terms of getting a server going and interacting with it
 
 For running RStudio in the cloud, EC2 has an AMI that already includes RStudio. For Digital Ocean, the options are either to install RStudio manually, or use docker with one of the RStudio containers.
 
-### EC2 for Rstudio
+### EC2 with Rstudio AMI
 
 Check for the image ID at <http://www.louisaslett.com/RStudio_AMI/>.
 
-Expose port 80 for RStudio.
+In the security settings during setup, expose port 80 for RStudio and use an existing certificate to connect. It will take a few seconds for the server to spin up, then right-click on it for instructions on how to connect. These will include the public DNS.
+
+Rstudio will already be running and one can connect throught the browers at `[public DNS]:80`. But it's a good idea to change the default password for the default user `rstudio` as soon as possible:
 
 ``` bash
 PEM=/path/to/certificate.pem
@@ -38,11 +41,15 @@ ssh -i $PEM ec2-user@$PUBDNS
 sudo passwd rstudio
 ```
 
-### EC2 for Docker
+This is the quickest way to get Rstudio running in the cloud, but maybe not the best setup because it breaks environment continuity between local development and whatever runs on the server, unless you just use the server RStudio exclusively. Which costs whatever money it costs to run EC2.
 
-Using the default EC2 Linux AMI.
+### EC2 with Docker + RStudio
+
+Use the default EC2 Linux AMI.
 
 In security settings expose TCP 8787 for RStudio inside Docker.
+
+Then, to install docker and run RStudio (if not doing a manual Dockerfile deploy, see below):
 
 ``` bash
 PEM=/path/to/certificate.pem
@@ -55,28 +62,37 @@ sudo service docker start
 sudo usermod -a -G docker ec2-user
 logout
 ssh -i $PEM ec2-user@$PUBDNS
+# docker should now run without sudo
 docker info
+
+docker pull rocker/verse # or something like that. 
 ```
+
+See here for containers with various R stacks: <https://github.com/rocker-org/rocker>
 
 ### Digital Ocean for Docker
 
-### Setup credentials
+Digital Ocean has a server type that already includes Docker, so this is super easy. Setup the droplet, get the connection instructions, and pull whatever Docker container suits.
 
-GitHub. When pushing to a remote repo, it will still ask for GitHub username/password. It's possible to [cache those](https://help.github.com/articles/caching-your-github-password-in-git/).
+### Setup credentials on server
+
+How to setup various components the first time around:
+
+**GitHub**. When pushing to a remote repo, it will still ask for GitHub username/password. It's possible to [cache those](https://help.github.com/articles/caching-your-github-password-in-git/).
 
 ``` bash
 git config --global user.name "Andreas Beger"
 git config --global user.email "foo@foo.com"
 ```
 
-AWS S3. In R:
+**AWS S3**. In R:
 
 ``` r
 Sys.setenv("AWS_ACCESS_KEY_ID" = "mykey",
            "AWS_SECRET_ACCESS_KEY" = "mysecretkey")
 ```
 
-Pushbullet:
+**Pushbullet**.
 
 ``` r
 library("RPushbullet")
@@ -96,9 +112,13 @@ This is what I initially did. Rstudio on the server. Use `rsync` or `scp` to cop
 -   Con: pain to sync changes back and forth
 -   Pro: in theory easier, less steps required
 
+### Dropbox
+
+The EC2 RStudio AMI has support built in for syncing via Dropbox.
+
 ### Use Docker
 
-Instead of running Rstudio on the server, use docker to run a container with Rstudio on the server.
+Instead of running Rstudio on the server, use docker to run a container with Rstudio on the server. There are I think two general ways to do this: (1) use Docker to setup the environment, but use some other solution to move code and data, or (2) add code and data to the container.
 
 -   Pro: you can run the container and thus work in the same environment
 -   Pro: easier to deploy on server since environment will be the same
@@ -110,30 +130,6 @@ Some general points for using docker:
 1.  It is easier to build an image with access to needed source files and data than to later copy the source files and data into the container.
 2.  For large files, one solution is to use an external storage location (S3, Dropbox, etc.) and sync the file from there.
 3.  For images that should not be public/on Docker hub, one can manually push the files or the entire image.
-
-#### Docker + copy source files and data
-
-Manually deploy a folder and Dockerfile, then build the image on the server. This requires less copying than building an image locally and then sending.
-
-``` bash
-# on local
-cd /path/to/folder
-ssh -i $PEM ec2-user@$PUBDNS mkdir [dest dir]
-rsync -rvz --progress -e "ssh -i $PEM" \
-    ./ ec2-user@${PUBDNS}:/home/ec2-user/countmodels
-
-# on remote
-ssh -i $PEM ec2-user@$PUBDNS
-cd [dest dir]
-
-CONTAG=[container name]
-docker build -t $CONTAG ./
-docker images
-
-USER=[user]
-PW=[pw]
-docker run -dp 8787:8787 -e ROOT=TRUE -e USER=$USER -e PASSWORD=$PW $CONTAG
-```
 
 #### Docker + copy image
 
@@ -167,6 +163,30 @@ docker run -dp 8787:8787 -e ROOT=TRUE -e USER=$USER -e PASSWORD=$PW $CONTAG
 
 This is maybe good for smaller container. For larger images, probably easier to sync the files and build the image on the server from the Dockerfile. This approach uses more space, as the `.tar` file will be around while docker is extracting the image.
 
+#### Docker + manually copy source files and data
+
+Manually deploy a folder and Dockerfile, then build the image on the server. This requires less copying than building an image locally and then sending.
+
+``` bash
+# on local
+cd /path/to/folder
+ssh -i $PEM ec2-user@$PUBDNS mkdir [dest dir]
+rsync -rvz --progress -e "ssh -i $PEM" \
+    ./ ec2-user@${PUBDNS}:/home/ec2-user/countmodels
+
+# on remote
+ssh -i $PEM ec2-user@$PUBDNS
+cd [dest dir]
+
+CONTAG=[container name]
+docker build -t $CONTAG ./
+docker images
+
+USER=[user]
+PW=[pw]
+docker run -dp 8787:8787 -e ROOT=TRUE -e USER=$USER -e PASSWORD=$PW $CONTAG
+```
+
 Utilities for interacting with servers
 --------------------------------------
 
@@ -195,7 +215,7 @@ cat(sprintf("%s: something happened\n", Sys.time()))
 cat(sprintf("Script finished in %ss\n", round((proc.time() - t0)["elapsed"])))
 ```
 
-    ## 2017-10-20 14:43:25: something happened
+    ## 2017-10-23 11:56:51: something happened
     ## Script finished in 2s
 
 works but is a bit unwieldy. Need to put newlines ("") at each `cat()` and what to do if you suddenly don't want log output. Instead:
@@ -206,8 +226,8 @@ flog.info("Hello")
 flog.error("Something bad happened, but we keep going")
 ```
 
-    ## INFO [2017-10-20 14:43:25] Hello
-    ## ERROR [2017-10-20 14:43:25] Something bad happened, but we keep going
+    ## INFO [2017-10-23 11:56:51] Hello
+    ## ERROR [2017-10-23 11:56:51] Something bad happened, but we keep going
 
 ### Script notifications via Pushbullet
 
@@ -218,11 +238,11 @@ When is that script running on a server done?
 
 There seem to be several ways of doing this in R. Pushbullet via [RPushbullet](https://github.com/eddelbuettel/rpushbullet) is one option. It's free, and was easy to setup.
 
-``` r
+For 1st time setup on a server. This will write a JSON config file that can be used from then on.
 
+``` r
 library("RPushbullet")
 
-# 1st time setup:
 if (!file.exists("~/.rpushbullet.json") & interactive()) {
   api_key <- readline(prompt = "Enter Pushbullet API key: ")
   dev <- pbGetDevices(api_key)
@@ -234,7 +254,11 @@ if (!file.exists("~/.rpushbullet.json") & interactive()) {
 } else if (!file.exists("~/.rpushbullet.json")) {
   stop("Could not find RPushbullet config file; run interactively to setup")
 }
+```
 
+General use after that in a script:
+
+``` r
 # To send notifications
 pbPost("note", title = "Server: something happened", body = sprintf("Finished %s", 2))
 
@@ -252,8 +276,6 @@ options(error = function() {
 ### File transfer with S3
 
 Use an Amazon S3 bucket to store and access files. I created an IAM user with access to only a data store single bucket for this, since the credentials for that user might potentially live on a server.
-
-Andrew Heiss has some code that uses `s3mpi`, which has some core functions for writing and reading R objects with S3 as the go between. It seems that the more general `aws.s3` packages provides the same functionality but with a more exhaustive feature set.
 
 ``` r
 library("aws.s3")
@@ -281,3 +303,5 @@ save_object(object = "/path/in/bucket/object.rda",
             bucket = "mybucket",
             file = "/path/on/local")
 ```
+
+Andrew Heiss has some code that uses `s3mpi`, which has some core functions for writing and reading R objects with S3 as the go between. It seems that the more general `aws.s3` packages provides the same functionality but with a more exhaustive feature set.
