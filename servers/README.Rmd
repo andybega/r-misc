@@ -293,3 +293,18 @@ save_object(object = "/path/in/bucket/object.rda",
 
 Andrew Heiss has some code that uses `s3mpi`, which has some core functions for writing and reading R objects with S3 as the go between. It seems that the more general `aws.s3` packages provides the same functionality but with a more exhaustive feature set. 
 
+## Docker cleanup
+
+```bash 
+docker system df
+docker system prune
+
+docker ps --filter "status=exited"
+docker rm $(docker ps -qa --no-trunc --filter "status=exited")
+
+docker volume ls -f dangling=true
+docker volume rm $(docker volume ls -qf dangling=true)
+
+docker images --filter "dangling=true"
+docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
+```
