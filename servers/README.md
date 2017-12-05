@@ -1,6 +1,7 @@
 Dealing with servers
 ================
 
+-   [Introduction](#introduction)
 -   [Starting and interacting with server](#starting-and-interacting-with-server)
     -   [EC2 with Rstudio AMI](#ec2-with-rstudio-ami)
     -   [EC2 with Docker + RStudio](#ec2-with-docker-rstudio)
@@ -17,6 +18,12 @@ Dealing with servers
     -   [Logging with `futile.logger`](#logging-with-futile.logger)
     -   [Script notifications via Pushbullet](#script-notifications-via-pushbullet)
     -   [File transfer with S3](#file-transfer-with-s3)
+-   [Docker cleanup](#docker-cleanup)
+
+Introduction
+------------
+
+This note is on running R stuff on a remote server. For getting started with Docker, [look here](https://github.com/andybega/r-misc/blob/master/servers/docker.md).
 
 Starting and interacting with server
 ------------------------------------
@@ -215,7 +222,7 @@ cat(sprintf("%s: something happened\n", Sys.time()))
 cat(sprintf("Script finished in %ss\n", round((proc.time() - t0)["elapsed"])))
 ```
 
-    ## 2017-10-23 11:56:51: something happened
+    ## 2017-12-05 14:12:43: something happened
     ## Script finished in 2s
 
 works but is a bit unwieldy. Need to put newlines ("") at each `cat()` and what to do if you suddenly don't want log output. Instead:
@@ -226,8 +233,8 @@ flog.info("Hello")
 flog.error("Something bad happened, but we keep going")
 ```
 
-    ## INFO [2017-10-23 11:56:51] Hello
-    ## ERROR [2017-10-23 11:56:51] Something bad happened, but we keep going
+    ## INFO [2017-12-05 14:12:43] Hello
+    ## ERROR [2017-12-05 14:12:43] Something bad happened, but we keep going
 
 ### Script notifications via Pushbullet
 
@@ -305,3 +312,20 @@ save_object(object = "/path/in/bucket/object.rda",
 ```
 
 Andrew Heiss has some code that uses `s3mpi`, which has some core functions for writing and reading R objects with S3 as the go between. It seems that the more general `aws.s3` packages provides the same functionality but with a more exhaustive feature set.
+
+Docker cleanup
+--------------
+
+``` bash
+docker system df
+docker system prune
+
+docker ps --filter "status=exited"
+docker rm $(docker ps -qa --no-trunc --filter "status=exited")
+
+docker volume ls -f dangling=true
+docker volume rm $(docker volume ls -qf dangling=true)
+
+docker images --filter "dangling=true"
+docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
+```

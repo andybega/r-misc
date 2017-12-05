@@ -1,15 +1,9 @@
----
-title: "Docker cheatsheet"
-output: github_document
----
+Docker cheatsheet
+================
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
-```
+Pull the Rstudio image from Docker hub.
 
-Pull the Rstudio image from Docker hub. 
-
-```{bash}
+``` bash
 docker pull rocker/rstudio
 docker images
 docker images -a
@@ -20,7 +14,7 @@ docker images rmi <imageID>
 
 Start/stop container
 
-```{bash}
+``` bash
 # run with root to be able to install dependencies; safe on local only probably
 docker run -dp 8787:8787 -e ROOT=TRUE rocker/rstudio
 
@@ -36,14 +30,13 @@ docker rm <imageID>
 docker start <imageID>
 ```
 
-Access Rstudio at "localhost:8787", default credentials are "rstudio". 
+Access Rstudio at "localhost:8787", default credentials are "rstudio".
 
-Installing system dependencies with `apt-get` requires ssh-ing into the container, cannot be done from Rstudio terminal. 
+Installing system dependencies with `apt-get` requires ssh-ing into the container, cannot be done from Rstudio terminal.
 
-```{bash}
+``` bash
 docker exec -it <imageID> bin/bash
 apt-get update
 apt-get install python3-pip
 pip3 install docopt
 ```
-
