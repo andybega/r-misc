@@ -10,6 +10,10 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Introduction
+
+This note is on running R stuff on a remote server. For getting started with Docker, [look here](https://github.com/andybega/r-misc/blob/master/servers/docker.md). 
+
 ## Starting and interacting with server
 
 EC2 vs Digital Ocean: in terms of getting a server going and interacting with it, Digital Ocean is easier to setup than EC2. 

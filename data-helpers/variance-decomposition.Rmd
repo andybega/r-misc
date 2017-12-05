@@ -1,0 +1,33 @@
+---
+title: "Variance decomposition"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+var_decomp <- function(group, var) {
+  # Decompose variance
+  # group - vector denoting group membership
+  # var   - variable to decompose
+  # Returns vector with total, within, and between variance
+  
+  # Calculate raw deviations
+  df <- data.frame(group=group, var=var)
+  df$group.mean <- ave(df$var, df$group)
+  df$within <- with(df, var - group.mean)
+  df$between <- with(df, group.mean - mean(var))
+  
+  # Calculate variance given df with var, within and between dev.
+  v.total   <- mean((var - mean(var))^2)
+  v.within  <- mean(df$within^2)
+  v.between <- mean(df$between^2)
+  res <- c(total=v.total, within=v.within, between=v.between)
+  res
+}
+
+
+```
+

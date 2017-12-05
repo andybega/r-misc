@@ -68,9 +68,9 @@ isoweek2date <- function(x) {
   # how many days to get to first Thursday of year?
   wday_first <- wday(first) - 1
   shift <- ifelse(wday_first > 4, 
-                   11 - wday_first, 
-                   4 - wday_first)
-
+                  11 - wday_first, 
+                  4 - wday_first)
+  
   out <- first + (isoweek - 1) * 7 + shift
   out
 }
@@ -101,8 +101,14 @@ Convert a year-month-day date to corresponding year + ISO week
 
 ```{r}
 date2isoweek <- function(x) {
-  x <- as.Date(x)
-  sprintf("%s-W%02s", lubridate::year(x), lubridate::isoweek(x))
+  x <- as.Date(x, format = "%Y-%m-%d")
+  out <- vector("character", length = length(x))
+  x_good <- x[!is.na(x)]
+  out[!is.na(x)] <- sprintf("%s-W%02s", 
+                            lubridate::isoyear(x_good), 
+                            lubridate::isoweek(x_good))
+  out[is.na(x)]  <- NA_character_
+  out
 }
 
 test_dates <- c("2015-01-01", "2015-01-02", "2017-01-05")

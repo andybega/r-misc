@@ -28,8 +28,9 @@ knitr::opts_chunk$set(echo = TRUE)
 library("sf")
 library("raster")
 
-bbox2poly <- function(geom) {
+bbox2poly <- function(geom, expand = c(0, 0)) {
   bb <- st_bbox(geom)
+  bb <- bb * c(1 - expand, 1 + expand )
   crs <- st_crs(bb)
   pts <- rbind(
     c(bb[1], bb[2]),
@@ -51,7 +52,7 @@ eesti <- eesti_sp %>%
   st_simplify(dTolerance = 200) 
 
 plot(eesti[, 1], col = 0, main = "")
-plot(st_boundary(bbox2poly(eesti)), add = TRUE)
+plot(st_boundary(bbox2poly(eesti, c(.05, .01))), add = TRUE)
 
 
 ```
