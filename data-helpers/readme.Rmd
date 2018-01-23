@@ -77,17 +77,17 @@ isoweek2date <- function(x) {
 ```
 
 ```{r}
-test_dates <- c("2015-W01", "2016-W01", "2017-W01", "2017-W02")
-data.frame(
-  date1 = test_dates,
-  date2 = as.character(isoweek2date(test_dates))
-)
+test_dates <- data.frame(
+  datestr = c("2015-W01", "2016-W01", "2017-W01", "2017-W02"),
+  correct = c("2015-01-01", "2016-01-07", "2017-01-05", "2017-01-12"))
+test_dates$date <- as.character(isoweek2date(test_dates$datestr))
+test_dates
 
-test_dates <- c("2014-W52", "2015-W52", "2015-W53", "2016-W52")
-data.frame(
-  date1 = test_dates,
-  date2 = as.character(isoweek2date(test_dates))
-)
+test_dates <- data.frame(
+  datestr = c("2014-W52", "2015-W52", "2015-W53", "2016-W52"),
+  correct = c("2014-12-25", "2015-12-24", "2015-12-31", "2016-12-29"))
+test_dates$date <- as.character(isoweek2date(test_dates$datestr))
+test_dates
 ```
 
 The dates output by this function all fall on Thursday. To use a different weekday for indexing the weeks, add or subtract the difference in days between the desired index week day and Thursday, where Monday = 1 and Thursday = 4. E.g. to get weeks indexed by Monday, add $1 - 4 = -3$ to the output dates. 
