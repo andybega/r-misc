@@ -81,6 +81,8 @@ See here for containers with various R stacks: <https://github.com/rocker-org/ro
 
 Digital Ocean has a server type that already includes Docker, so this is super easy. Setup the droplet, get the connection instructions, and pull whatever Docker container suits.
 
+See \[docker.md\] for how to get Docker running.
+
 ### Setup credentials on server
 
 How to setup various components the first time around:
@@ -222,7 +224,7 @@ cat(sprintf("%s: something happened\n", Sys.time()))
 cat(sprintf("Script finished in %ss\n", round((proc.time() - t0)["elapsed"])))
 ```
 
-    ## 2017-12-05 14:12:43: something happened
+    ## 2018-02-09 15:25:05: something happened
     ## Script finished in 2s
 
 works but is a bit unwieldy. Need to put newlines ("") at each `cat()` and what to do if you suddenly don't want log output. Instead:
@@ -233,8 +235,8 @@ flog.info("Hello")
 flog.error("Something bad happened, but we keep going")
 ```
 
-    ## INFO [2017-12-05 14:12:43] Hello
-    ## ERROR [2017-12-05 14:12:43] Something bad happened, but we keep going
+    ## INFO [2018-02-09 15:25:05] Hello
+    ## ERROR [2018-02-09 15:25:05] Something bad happened, but we keep going
 
 ### Script notifications via Pushbullet
 

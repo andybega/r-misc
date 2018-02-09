@@ -32,7 +32,7 @@ docker start <imageID>
 
 Access Rstudio at "localhost:8787", default credentials are "rstudio".
 
-Installing system dependencies with `apt-get` requires ssh-ing into the container, cannot be done from Rstudio terminal.
+Installing system dependencies with `apt-get` requires ssh-ing into the container. If the terminal pane is blank, try in global options disabling "connect with Web sockets".
 
 ``` bash
 docker exec -it <imageID> bin/bash

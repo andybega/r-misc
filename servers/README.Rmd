@@ -69,6 +69,8 @@ See here for containers with various R stacks: https://github.com/rocker-org/roc
 
 Digital Ocean has a server type that already includes Docker, so this is super easy. Setup the droplet, get the connection instructions, and pull whatever Docker container suits. 
 
+See [docker.md] for how to get Docker running.
+
 ### Setup credentials on server
 
 How to setup various components the first time around:
